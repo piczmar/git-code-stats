@@ -4,21 +4,16 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -59,17 +54,9 @@ public class GitUtils {
     }
 
     public static List<DiffEntry> diff(Git git, ObjectId newCommit, ObjectId oldCommit) throws GitAPIException, IOException {
-        try (ObjectReader reader = git.getRepository().newObjectReader()) {
-            CanonicalTreeParser newParser = new CanonicalTreeParser();
-            CanonicalTreeParser oldParser = new CanonicalTreeParser();
-            newParser.reset(reader, newCommit);
-            oldParser.reset(reader, oldCommit);
-
-
-            DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
-            df.setRepository(git.getRepository());
-            return df.scan(newCommit, oldCommit);
-        }
+        DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
+        df.setRepository(git.getRepository());
+        return df.scan(newCommit, oldCommit);
     }
 
     public static void printDiff(Git git, ObjectId newCommit, ObjectId oldCommit) throws GitAPIException, IOException {
