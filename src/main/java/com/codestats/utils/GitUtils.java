@@ -7,6 +7,7 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
@@ -25,9 +26,9 @@ public class GitUtils {
     public static Repository openGitRepository(File gitDir) throws IOException {
         FileRepositoryBuilder builder = new FileRepositoryBuilder();
         return builder
-                .findGitDir(gitDir)
-                .readEnvironment()
-                .build();
+            .findGitDir(gitDir)
+            .readEnvironment()
+            .build();
     }
 
     public static List<String> listFiles(Repository repository, RevCommit commit) {
@@ -59,24 +60,47 @@ public class GitUtils {
         return df.scan(newCommit, oldCommit);
     }
 
-    public static void printDiff(Git git, ObjectId newCommit, ObjectId oldCommit) throws IOException {
-        diff(git, newCommit, oldCommit)
-                .forEach(System.out::println);
+    public static List<DiffEntry> diff(Repository repository, ObjectId newCommit, ObjectId oldCommit)
+        throws IOException {
+        DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
+        df.setRepository(repository);
+        return df.scan(newCommit, oldCommit);
     }
 
-    public static void printLastDiff(Git git) throws GitAPIException, IOException {
-        ObjectId treeId = git.getRepository().resolve("HEAD^{tree}"); // equals newCommit.getTree()
-        ObjectId tree2Id = git.getRepository().resolve("HEAD~1^{tree}"); // equals newCommit.getTree()
-        printDiff(git, tree2Id, treeId);
+    public static void printDiff(Repository repository, ObjectId newCommit, ObjectId oldCommit) throws IOException {
+        diff(repository, newCommit, oldCommit)
+            .forEach(System.out::println);
+    }
+
+    public static void printLastDiff(Repository repository) throws GitAPIException, IOException {
+        ObjectId treeId = repository.resolve("HEAD^{tree}"); // equals newCommit.getTree()
+        ObjectId tree2Id = repository.resolve("HEAD~1^{tree}"); // equals newCommit.getTree()
+        printDiff(repository, tree2Id, treeId);
     }
 
     public static void getCommitsInfo(Iterable<RevCommit> logs) {
         int count = 0;
         for (RevCommit rev : logs) {
-            System.out.println("Commit: " + rev + " at: " + rev.getCommitterIdent().getWhen()/* + ", name: " + rev.getName() + ", id: " + rev.getId().getName() */);
+            System.out.println("Commit: " + rev + " at: " + rev.getCommitterIdent()
+                .getWhen()/* + ", name: " + rev.getName() + ", id: " + rev.getId().getName() */);
             count++;
         }
         System.out.println("Had " + count + " commits overall on current branch");
+    }
+
+    public static void getCommitInfo(Repository repository, String commitHash) throws IOException {
+        try (RevWalk walk = new RevWalk(repository)) {
+            RevCommit commit = walk.parseCommit(repository.resolve(commitHash));
+            System.out.println(commit.getFullMessage());
+            System.out.println("parent: " + commit.getParent(0));
+        }
+    }
+
+    public static RevCommit getPreviousCommit(Repository repository, String commitHash) throws IOException {
+        try (RevWalk walk = new RevWalk(repository)) {
+            RevCommit commit = walk.parseCommit(repository.resolve(commitHash));
+            return commit.getParent(0);
+        }
     }
 
     public static Stream<RevCommit> getCommits(Git git) throws GitAPIException {
@@ -85,15 +109,15 @@ public class GitUtils {
 
     public static Stream<ObjectId> getRevTrees(Stream<RevCommit> commitsStream) {
         return commitsStream
-                .peek(rev -> System.out.println("Processing commit: " + rev.getId()))
-                .map(rev -> rev.getTree().getId());
+            .peek(rev -> System.out.println("Processing commit: " + rev.getId()))
+            .map(rev -> rev.getTree().getId());
     }
 
     public static List<String> getAllCommiters(Git git) throws GitAPIException {
         return StreamSupport.stream(git.log().call().spliterator(), false)
-                .map(l -> l.getCommitterIdent().getEmailAddress())
-                .distinct()
-                .collect(toList());
+            .map(l -> l.getCommitterIdent().getEmailAddress())
+            .distinct()
+            .collect(toList());
     }
 
 }

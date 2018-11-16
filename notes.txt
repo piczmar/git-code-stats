@@ -1,0 +1,29 @@
+
+Show performance improvement on example of simple project which is a git repo analyser to detect
+hot places - files which are updated most often and potentially smell,
+e.g. could be separated to smaller single-responsibility modules or are the most frequent place of errors
+(therefore most often fixed)
+
+Check performance gain of running the code in GraalVM vs in JVM.
+
+
+Resources:
+
+
+https://technology.amis.nl/2018/08/21/java-programs-as-native-executables-graalvm-is-the-answer/
+
+https://git-scm.com/book/pl/v2/Appendix-B%3A-Embedding-Git-in-your-Applications-JGit
+https://www.eclipse.org/jgit/documentation/
+https://www.codeaffine.com/2014/10/20/git-internals/
+https://blog.riff.org/2015_10_30_git_tip_of_the_day_show_the_hottest_files_in_a_repo
+https://github.com/kevinsawicki/gitective
+https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/porcelain/ShowLog.java
+https://github.com/selesse/jgitstats
+https://www.future-processing.pl/blog/analyzing-code-base-through-git-history/
+https://embeddedartistry.com/blog/2018/6/5/gitnstats-a-git-history-analyzer-to-help-identify-code-hotspots
+
+https://stackoverflow.com/questions/23699371/java-8-distinct-by-property
+https://www.baeldung.com/java-groupingby-collector
+
+# stream.toMap performance:
+https://stackoverflow.com/questions/51333730/memory-optimization-of-java-collectors-tomap
