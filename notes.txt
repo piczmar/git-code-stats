@@ -27,3 +27,6 @@ https://www.baeldung.com/java-groupingby-collector
 
 # stream.toMap performance:
 https://stackoverflow.com/questions/51333730/memory-optimization-of-java-collectors-tomap
+
+
+test
