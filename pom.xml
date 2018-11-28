@@ -49,6 +49,8 @@
                         <!--https://stackoverflow.com/questions/999489/invalid-signature-file-when-attempting-to-run-a-jar-->
                         <filter>
                             <artifact>*:*</artifact>
+                                 
+                                 
                             <excludes>
                                 <exclude>META-INF/*.SF</exclude>
                                 <exclude>META-INF/*.DSA</exclude>
